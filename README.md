@@ -27,8 +27,7 @@ Ikuti langkah-langkah di bawah ini untuk menjalankan aplikasi secara lokal.
 
 1. **Clone repository ini:**
    ```bash
-   git clone https://github.com/username/antrian-online.git
-   cd antrian-online
+   git clone https://github.com/umaralf2735/Interested.git
    ```
 
 2. **Instal dependensi Composer:**
