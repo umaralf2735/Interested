@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Service;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,11 +14,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        // Admin Profile
+        User::create([
+            'name' => 'Administrator',
+            'email' => 'admin@admin.com',
+            'password' => Hash::make('password')
+        ]);
+        Service::create([
+            'name' => 'Pendaftaran',
+            'code' => 'A',
+            'description' => 'Loket Pendaftaran Ulang & Baru'
+        ]);
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        Service::create([
+            'name' => 'Pembayaran',
+            'code' => 'B',
+            'description' => 'Loket Pembayaran Kasir'
+        ]);
+
+        Service::create([
+            'name' => 'Customer Service',
+            'code' => 'C',
+            'description' => 'Layanan Informasi dan Pengaduan'
+        ]);
     }
 }

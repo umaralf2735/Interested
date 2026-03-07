@@ -18,7 +18,3 @@ use App\Http\Controllers\QueueController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-Route::post('/queue/take', [QueueController::class, 'take']);
-Route::post('/queue/call', [QueueController::class, 'callForService']);
-Route::get('/queue/status', [QueueController::class, 'getStatus']);

@@ -2,17 +2,26 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QueueController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
+// Public Route
 Route::get('/', [QueueController::class, 'index'])->name('home');
-Route::get('/admin', [QueueController::class, 'admin'])->name('admin');
+Route::get('/queue/status', [QueueController::class, 'getStatus']);
+Route::post('/queue/take', [QueueController::class, 'take']);
+
+// Auth Routes
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+
+// Admin Protected Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/admin', [QueueController::class, 'admin'])->name('admin');
+    Route::post('/admin/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/queue/call', [QueueController::class, 'callForService']);
+});

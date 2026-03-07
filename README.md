@@ -39,6 +39,15 @@ Ikuti langkah-langkah di bawah ini untuk menjalankan aplikasi secara lokal.
    ```bash
    cp .env.example .env
    ```
+   **Kalo di CMD:**
+   ```bash
+   copy .env.example .env
+   ```
+   **Kalo di PowerShell:**
+   ```bash
+   Copy-Item .env.example .env
+   ```
+
 
 4. **Konfigurasi Database:**
    Buka file `.env` di text editor dan sesuaikan kredensial databasemu (secara default sudah diconfigure untuk Laragon localhost):

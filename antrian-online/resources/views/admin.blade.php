@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin - Antrian Online</title>
     <!-- Modern Font: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4F46E5;
-            --primary-hover: #4338CA;
-            --secondary: #10B981;
-            --danger: #EF4444;
+            --primary: #6366F1; /* Indigo 500 */
+            --primary-hover: #4F46E5;
+            --secondary: #10B981; /* Emerald 500 */
+            --danger: #EF4444; /* Red 500 */
             --danger-hover: #DC2626;
-            --bg: #F3F4F6;
-            --card-bg: #FFFFFF;
-            --text-dark: #111827;
-            --text-gray: #6B7280;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --bg: #0F172A; /* Slate 900 */
+            --card-bg: #1E293B; /* Slate 800 */
+            --card-hover: #334155; /* Slate 700 */
+            --text-dark: #F8FAFC; /* Slate 50 */
+            --text-gray: #94A3B8; /* Slate 400 */
+            --border: #334155;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
         }
 
         * {
@@ -38,34 +40,52 @@
         }
 
         header {
-            background: #1F2937;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
             color: white;
             padding: 1.5rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--shadow-md);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         header h1 {
             font-size: 1.5rem;
             font-weight: 700;
+            background: linear-gradient(135deg, #818CF8, #C084FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
         }
 
         .btn-outline {
             background: transparent;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.5);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
             padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
+            border-radius: 0.5rem;
             text-decoration: none;
             font-size: 0.875rem;
             transition: all 0.2s;
+            cursor: pointer;
         }
         
         .btn-outline:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: white;
+            background: var(--card-hover);
+        }
+
+        /* Forms in header */
+        .logout-form {
+            display: inline;
         }
 
         main {
@@ -83,6 +103,7 @@
         .dashboard-header h2 {
             font-size: 1.8rem;
             color: var(--text-dark);
+            font-weight: 700;
         }
 
         .dashboard-header p {
@@ -111,17 +132,25 @@
 
         .admin-card {
             background: var(--card-bg);
+            border: 1px solid var(--border);
             border-radius: 1rem;
             padding: 1.5rem;
             box-shadow: var(--shadow-md);
             border-top: 4px solid var(--primary);
             display: flex;
             flex-direction: column;
+            transition: transform 0.2s ease;
+        }
+
+        .admin-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
         }
 
         .admin-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-dark);
         }
 
         .admin-card p {
@@ -134,14 +163,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #F9FAFB;
+            background: rgba(15, 23, 42, 0.5); /* Darker inner bg */
             padding: 1rem;
             border-radius: 0.5rem;
             margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
         }
         
         .stat-item {
             text-align: center;
+            width: 100%;
         }
         
         .stat-label {
@@ -149,16 +180,19 @@
             text-transform: uppercase;
             color: var(--text-gray);
             font-weight: 600;
+            letter-spacing: 0.05em;
         }
         
         .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 800;
             color: var(--text-dark);
+            margin-top: 0.25rem;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
         .btn-call {
-            background-color: var(--secondary);
+            background: linear-gradient(135deg, var(--secondary), #059669);
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
@@ -166,21 +200,28 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: opacity 0.2s ease, transform 0.1s ease;
             width: 100%;
             display: inline-flex;
             justify-content: center;
             align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
         }
 
         .btn-call:hover {
-            background-color: #059669; /* Darker emerald */
+            opacity: 0.9;
+        }
+        
+        .btn-call:active {
+            transform: scale(0.98);
         }
         
         .btn-call:disabled {
-            background-color: #D1D5DB;
+            background: var(--card-hover);
             cursor: not-allowed;
-            color: #9CA3AF;
+            color: var(--text-gray);
+            box-shadow: none;
+            transform: none;
         }
 
         footer {
@@ -188,26 +229,35 @@
             padding: 1.5rem;
             color: var(--text-gray);
             font-size: 0.875rem;
-            border-top: 1px solid #E5E7EB;
+            border-top: 1px solid var(--border);
+            background: rgba(30, 41, 59, 0.5);
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Admin Control Panel</h1>
-        <a href="{{ route('home') }}" class="btn-outline">&larr; Kembali ke Publik</a>
+        <h1>Admin Panel</h1>
+        
+        <div class="header-actions">
+            <a href="{{ route('home') }}" class="btn-outline">&larr; Publik UI</a>
+            
+            <form method="POST" action="{{ route('logout') }}" class="logout-form">
+                @csrf
+                <button type="submit" class="btn-outline" style="border-color: rgba(239,68,68,0.5); color: #FCA5A5;">Logout</button>
+            </form>
+        </div>
     </header>
 
     <main>
         <div class="dashboard-header">
             <h2>Manajemen Antrian</h2>
-            <p>Panggil nomor antrian berikutnya untuk setiap layanan.</p>
+            <p>Panggil nomor antrian berikutnya untuk setiap layanan secara real-time.</p>
         </div>
 
         <div class="grid-container" id="adminGrid">
             <!-- Rendered by JS -->
-            <div style="text-align:center; grid-column: 1 / -1; padding: 2rem;">
+            <div style="text-align:center; grid-column: 1 / -1; padding: 2rem; color: var(--text-gray);">
                 <p>Memuat data layanan...</p>
             </div>
         </div>
@@ -219,39 +269,62 @@
 
     <script>
         const baseUrl = "{{ url('/') }}";
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         
         function callQueue(serviceId) {
             const btn = document.getElementById(`btn-call-${serviceId}`);
-            if(btn) btn.disabled = true;
+            if(btn) {
+                btn.disabled = true;
+                btn.innerText = 'Memanggil...';
+            }
             
-            fetch(`${baseUrl}/api/queue/call`, {
+            fetch(`${baseUrl}/queue/call`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
                 },
                 body: JSON.stringify({ service_id: serviceId })
             })
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    alert(`Berhasil: ${data.message}`);
                     fetchDashboard();
+                } else if (!data.success && data.message === 'Unauthenticated.') {
+                    window.location.reload(); // Force reload to go to login
                 } else {
                     alert(`Info: ${data.message}`);
-                    if(btn) btn.disabled = false;
+                    if(btn) {
+                        btn.disabled = false;
+                        btn.innerText = 'Panggil Antrian Berikutnya';
+                    }
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Terjadi kesalahan jaringan.');
-                if(btn) btn.disabled = false;
+                if(err.message.includes('Unexpected token')) {
+                     window.location.reload(); // Likely session expired, HTML returned
+                } else {
+                    alert('Terjadi kesalahan jaringan.');
+                }
+                if(btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Panggil Antrian Berikutnya';
+                }
             });
         }
         
         function fetchDashboard() {
-            fetch(`${baseUrl}/api/queue/status`)
-                .then(res => res.json())
+            fetch(`${baseUrl}/queue/status`)
+                .then(res => {
+                    // Check if redirecting to login page (indicates session expiration)
+                    if(res.redirected && res.url.includes('login')) {
+                        window.location.href = res.url;
+                        throw new Error('Unauthenticated');
+                    }
+                    return res.json();
+                })
                 .then(data => {
                     const grid = document.getElementById('adminGrid');
                     
@@ -260,18 +333,21 @@
                         data.summary.forEach(service => {
                             const hasPending = service.pending_count > 0;
                             const btnHtml = hasPending 
-                                ? `<button id="btn-call-${service.id}" class="btn-call" onclick="callQueue(${service.id})">Panggil Antrian Berikutnya</button>`
-                                : `<button id="btn-call-${service.id}" class="btn-call" disabled>Tidak ada antrian</button>`;
+                                ? `<button id="btn-call-${service.id}" class="btn-call" onclick="callQueue(${service.id})">Panggil Berikutnya</button>`
+                                : `<button id="btn-call-${service.id}" class="btn-call" disabled>Kosong</button>`;
+                                
+                            // Emerald 400 for 0 pending, Red 400 for > 0 pending
+                            const countColor = hasPending ? '#F87171' : '#34D399';
                                 
                             const html = `
                                 <div class="admin-card">
                                     <h3>${service.name}</h3>
-                                    <p>Kode: ${service.code}</p>
+                                    <p>Kode Layanan: ${service.code}</p>
                                     
                                     <div class="queue-stats">
                                         <div class="stat-item">
-                                            <div class="stat-label">Menunggu</div>
-                                            <div class="stat-value" style="color: ${hasPending ? '#EF4444' : '#10B981'}">${service.pending_count}</div>
+                                            <div class="stat-label">Sedang Menunggu</div>
+                                            <div class="stat-value" style="color: ${countColor}">${service.pending_count}</div>
                                         </div>
                                     </div>
                                     
@@ -282,19 +358,21 @@
                         });
                     } else {
                         grid.innerHTML = `
-                            <div style="text-align:center; grid-column: 1 / -1; padding: 3rem; background: white; border-radius: 1rem; box-shadow: var(--shadow-md);">
-                                <h3>Belum ada Layanan</h3>
-                                <p style="color: #6B7280; margin-top: 0.5rem;">Silakan tambahkan data layanan ke tabel \`services\` di database.</p>
+                            <div style="text-align:center; grid-column: 1 / -1; padding: 3rem; background: var(--card-bg); border-radius: 1rem; border: 1px solid var(--border);">
+                                <h3 style="color: var(--text-dark);">Belum ada Layanan</h3>
+                                <p style="color: var(--text-gray); margin-top: 0.5rem;">Silakan tambahkan data layanan ke tabel \`services\` di database.</p>
                             </div>
                         `;
                     }
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    if(err.message !== 'Unauthenticated') console.error(err);
+                });
         }
         
         // Init
         fetchDashboard();
-        setInterval(fetchDashboard, 5000); // Admin can poll every 5 seconds to get refresh counts
+        setInterval(fetchDashboard, 3000); // Admin poll every 3 seconds
     </script>
 </body>
 </html>
